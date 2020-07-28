@@ -1,0 +1,104 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int movx[4] = {1,0,-1,0};
+int movy[4] = {0,1,0,-1};
+
+int bfs(int n, int m, vector<string> &lab){
+	queue<pair<int,int>> q;
+	q.push(make_pair(0,0));
+	int pasado[n][m];
+	int minimo[n][m];
+	memset(pasado,0,sizeof(pasado[0][0])*n*m);
+	memset(minimo,0,sizeof(minimo[0][0])*n*m);
+	pasado[0][0] = 1;
+
+	while(!q.empty()){
+		pair<int,int> p = q.front();
+		q.pop();
+
+		for(int i=0;i<4;++i){
+			int x = p.first + movx[i];
+			int y = p.second + movy[i];
+			if((x < n and x >=0) and (y < m and y >= 0) and pasado[x][y] == 0){
+				if(lab[x][y] == '.'){
+					minimo[x][y] = minimo[x-movx[i]][y-movy[i]]+1;
+					if(x == n-1 and y == m-1){
+						return minimo[x][y];
+					}else{
+						q.push(make_pair(x,y));
+						pasado[x][y] = 1;
+					}
+				}
+			}
+		}
+	}
+
+	return -1;
+}
+
+void bfsd(int n, int m, int min, vector<string> &lab1, vector<string> &lab2){
+	queue<pair<int,int>> q;
+	q.push(make_pair(0,0));
+	int pasado[n][m];
+	memset(pasado,0,sizeof(pasado[0][0])*n*m);
+	int camino[n][m];
+	memset(camino,0,sizeof(camino[0][0])*n*m);
+	pasado[0][0] = 1;
+
+	while(!q.empty()){
+		pair<int,int> p = q.front();
+		q.pop();
+
+		for(int i=0;i<4;++i){
+			int x = p.first + movx[i];
+			int y = p.second + movy[i];
+			if((x < n and x >=0) and (y < m and y >= 0) and pasado[x][y] == 0){
+				if(lab1[x][y] == '.' and lab2[x][y] == '.'){
+					camino[x][y] = camino[x-movx[i]][y-movy[i]]+1;
+					if(x == n-1 and y == m-1){
+						if(camino[x][y] == min){
+							cout<<"YES";
+							return;
+						}else{
+							cout<<"NO";
+							return;
+						}
+					}else{
+						q.push(make_pair(x,y));
+						pasado[x][y] = 1;
+					}
+				}
+			}
+		}
+	}
+
+	cout<<"NO";
+	return;
+}
+
+
+int main(){
+	ios_base::sync_with_stdio(NULL);
+	cin.tie(0);
+
+	int n,m; cin>>n>>m;
+
+	if(n == 1 and m == 1){
+		cout<<"YES";
+		return 0;
+	}else{
+		vector<string> lab1(n),lab2(n);
+
+		for(auto &c: lab1) cin>>c;
+		for(auto &c: lab2) cin>>c;
+
+		int min1 = bfs(n,m,lab1);
+		int min2 = bfs(n,m,lab2);
+
+		if(min1 != min2)	cout<<"NO";
+		else bfsd(n,m,min1,lab1,lab2);
+	}
+
+	return 0;
+}
